@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 const SearchFilter = ({ filters, onFiltersChange, events }) => {
@@ -26,6 +25,34 @@ const SearchFilter = ({ filters, onFiltersChange, events }) => {
 
   const categories = [...new Set(events.map(event => event.category))];
   const assignees = [...new Set(events.map(event => event.assignedTo).filter(Boolean))];
+
+  const handleCategoryChange = (category) => {
+    setFilters(prev => ({
+      ...prev,
+      category: prev.category === category ? '' : category
+    }));
+  };
+
+  const handleStatusChange = (status) => {
+    setFilters(prev => ({
+      ...prev,
+      status: prev.status === status ? '' : status
+    }));
+  };
+
+  const getStatusIcon = (status) => {
+    const icons = {
+      planned: '📋',
+      'in-progress': '🔄',
+      completed: '✅'
+    };
+    return icons[status] || '';
+  };
+
+  const getStatusLabel = (status) => {
+    if (!status || typeof status !== 'string') return '';
+    return status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ');
+  };
 
   return (
     <div className="search-filter">

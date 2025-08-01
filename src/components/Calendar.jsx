@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useScheduler } from '../hooks/useScheduler';
 import SchedulerHeader from './SchedulerHeader';
 import SearchFilter from './SearchFilter';
