@@ -24,6 +24,8 @@ const AdvancedScheduler = ({ events: initialEvents, onAddEvent, onUpdateEvent, o
     setFilters,
     workingHours,
     setWorkingHours,
+    workingDays,
+    setWorkingDays,
     timeFormat,
     setTimeFormat,
     timezone,
@@ -122,7 +124,8 @@ const AdvancedScheduler = ({ events: initialEvents, onAddEvent, onUpdateEvent, o
       events: filteredEvents,
       onEventClick: handleEventClick,
       timeFormat,
-      workingHours
+      workingHours,
+      workingDays
     };
 
     switch (viewMode) {
@@ -211,6 +214,8 @@ const AdvancedScheduler = ({ events: initialEvents, onAddEvent, onUpdateEvent, o
         setTimezone={setTimezone}
         workingHours={workingHours}
         setWorkingHours={setWorkingHours}
+        workingDays={workingDays}
+        setWorkingDays={setWorkingDays}
         onAddEvent={handleAddEvent}
       />
 

@@ -1,5 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import AdvancedScheduler from './components/Calendar';
 import AIAssistant from './components/AIAssistant';
@@ -126,7 +127,7 @@ export default function App() {
           </button>
         </div>
       </header>
-      
+
       <main className="app-main">
         <AdvancedScheduler
           events={events}
@@ -134,7 +135,7 @@ export default function App() {
           onUpdateEvent={updateEvent}
           onDeleteEvent={deleteEvent}
         />
-        
+
         {showAIAssistant && (
           <AIAssistant
             events={events}
@@ -143,6 +144,7 @@ export default function App() {
           />
         )}
       </main>
+      <ToastContainer />
     </div>
   );
 }

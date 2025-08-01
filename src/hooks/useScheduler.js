@@ -17,6 +17,15 @@ export const useScheduler = (initialEvents = []) => {
     start: '09:00',
     end: '17:00'
   });
+  const [workingDays, setWorkingDays] = useState({
+    monday: true,
+    tuesday: true,
+    wednesday: true,
+    thursday: true,
+    friday: true,
+    saturday: false,
+    sunday: false
+  });
   const [timeFormat, setTimeFormat] = useState('12'); // 12 or 24
   const [timezone, setTimezone] = useState('America/New_York');
 
@@ -91,6 +100,8 @@ export const useScheduler = (initialEvents = []) => {
     setFilters,
     workingHours,
     setWorkingHours,
+    workingDays,
+    setWorkingDays,
     timeFormat,
     setTimeFormat,
     timezone,

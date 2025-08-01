@@ -1,14 +1,13 @@
-
 export const formatTime = (time, format24Hour = false) => {
   if (!time) return '';
-  
+
   const [hours, minutes] = time.split(':');
   const hour = parseInt(hours, 10);
-  
+
   if (format24Hour) {
     return `${hours}:${minutes}`;
   }
-  
+
   const ampm = hour >= 12 ? 'PM' : 'AM';
   const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
   return `${displayHour}:${minutes} ${ampm}`;
@@ -47,32 +46,32 @@ export const generateTimeSlots = (startHour = 0, endHour = 24, interval = 30) =>
 };
 
 export const isWorkingHour = (time, workingHours) => {
-  const [hours, minutes] = time.split(':').map(Number);
-  const currentMinutes = hours * 60 + minutes;
-  
-  const [startHours, startMins] = workingHours.start.split(':').map(Number);
-  const startMinutes = startHours * 60 + startMins;
-  
-  const [endHours, endMins] = workingHours.end.split(':').map(Number);
-  const endMinutes = endHours * 60 + endMins;
-  
-  return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+  const hour = parseInt(time.split(':')[0]);
+  const startHour = parseInt(workingHours.start.split(':')[0]);
+  const endHour = parseInt(workingHours.end.split(':')[0]);
+  return hour >= startHour && hour < endHour;
+};
+
+export const isWorkingDay = (date, workingDays) => {
+  const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  const dayName = dayNames[date.getDay()];
+  return workingDays[dayName];
 };
 
 export const formatDateRange = (startDate, endDate) => {
   const start = new Date(startDate);
   const end = new Date(endDate);
-  
+
   const options = { 
     month: 'short', 
     day: 'numeric',
     year: start.getFullYear() !== end.getFullYear() ? 'numeric' : undefined
   };
-  
+
   if (start.toDateString() === end.toDateString()) {
     return start.toLocaleDateString('en-US', options);
   }
-  
+
   return `${start.toLocaleDateString('en-US', options)} - ${end.toLocaleDateString('en-US', options)}`;
 };
 
@@ -81,7 +80,7 @@ export const getCurrentTimePosition = () => {
   const hours = now.getHours();
   const minutes = now.getMinutes();
   const totalMinutes = hours * 60 + minutes;
-  
+
   // Calculate position as percentage of the day (0-100%)
   return (totalMinutes / (24 * 60)) * 100;
 };

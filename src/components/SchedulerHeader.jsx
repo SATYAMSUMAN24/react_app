@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { formatDateRange } from '../utils/dateUtils';
 
@@ -13,7 +12,9 @@ const SchedulerHeader = ({
   setTimezone,
   workingHours,
   setWorkingHours,
-  onAddEvent
+  onAddEvent,
+  workingDays,
+  setWorkingDays
 }) => {
   const viewModes = [
     { key: 'day', label: 'Day View' },
@@ -130,20 +131,39 @@ const SchedulerHeader = ({
             </div>
           </div>
         </div>
+
+        <div className="working-days-control">
+          <label>Working Days</label>
+          <div className="working-days-inputs">
+            {Object.entries(workingDays).map(([day, isWorking]) => (
+              <label key={day} className="day-checkbox">
+                <input
+                  type="checkbox"
+                  checked={isWorking}
+                  onChange={(e) => setWorkingDays({
+                    ...workingDays,
+                    [day]: e.target.checked
+                  })}
+                />
+                <span>{day.charAt(0).toUpperCase() + day.slice(1, 3)}</span>
+              </label>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="scheduler-navigation">
         <button className="nav-btn" onClick={() => onNavigate('prev')}>
           ← Previous
         </button>
-        
+
         <div className="date-range-display">
           <h2>{getDateRangeText()}</h2>
           <button className="today-btn" onClick={() => onNavigate('today')}>
             📅 Today
           </button>
         </div>
-        
+
         <button className="nav-btn" onClick={() => onNavigate('next')}>
           Next →
         </button>

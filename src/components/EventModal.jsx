@@ -16,7 +16,9 @@ const EventModal = ({ event, selectedDate, onSave, onDelete, onClose }) => {
     location: '',
     isRecurring: false,
     recurrenceType: '',
-    tags: []
+    tags: [],
+    alarm: false,
+    alarmTime: 15
   });
 
   const [tagInput, setTagInput] = useState('');
@@ -285,6 +287,39 @@ const EventModal = ({ event, selectedDate, onSave, onDelete, onClose }) => {
                 <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
                 <option value="yearly">Yearly</option>
+              </select>
+            </div>
+          )}
+
+          <div className="form-group">
+            <div className="checkbox-group">
+              <input
+                type="checkbox"
+                name="alarm"
+                checked={formData.alarm}
+                onChange={handleInputChange}
+                id="alarm"
+              />
+              <label htmlFor="alarm" className="form-label">🔔 Set Alarm</label>
+            </div>
+          </div>
+
+          {formData.alarm && (
+            <div className="form-group">
+              <label className="form-label">Alarm Time (minutes before)</label>
+              <select
+                name="alarmTime"
+                value={formData.alarmTime}
+                onChange={handleInputChange}
+                className="form-input"
+              >
+                <option value="5">5 minutes</option>
+                <option value="10">10 minutes</option>
+                <option value="15">15 minutes</option>
+                <option value="30">30 minutes</option>
+                <option value="60">1 hour</option>
+                <option value="120">2 hours</option>
+                <option value="1440">1 day</option>
               </select>
             </div>
           )}

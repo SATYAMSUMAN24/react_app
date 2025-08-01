@@ -70,7 +70,7 @@ const MonthView = ({
               </div>
               
               <div className="day-events">
-                {visibleEvents.map(event => (
+                {visibleEvents.map((event, index) => (
                   <div
                     key={event.id}
                     className={`month-event ${event.status}`}
@@ -79,15 +79,28 @@ const MonthView = ({
                       onEventClick(event);
                     }}
                     title={`${event.title} - ${event.startTime || ''} ${event.endTime ? `to ${event.endTime}` : ''}`}
+                    style={{ 
+                      zIndex: visibleEvents.length - index,
+                      backgroundColor: event.status === 'planned' ? '#e3f2fd' : 
+                                     event.status === 'in-progress' ? '#fff3e0' : '#e8f5e8'
+                    }}
                   >
-                    <span className="event-indicator" style={{ backgroundColor: event.category === 'meeting' ? '#3182ce' : '#48bb78' }} />
-                    {event.title}
+                    <span className="event-indicator" style={{ 
+                      backgroundColor: event.category === 'meeting' ? '#3182ce' : 
+                                     event.category === 'task' ? '#e53e3e' : 
+                                     event.category === 'training' ? '#805ad5' : '#48bb78' 
+                    }} />
+                    <span className="event-title-text">{event.title}</span>
+                    {event.alarm && <span className="alarm-icon">🔔</span>}
                   </div>
                 ))}
                 
                 {hasMore && (
-                  <div className="more-events">
-                    +{dayEvents.length - 3} more
+                  <div className="more-events" onClick={(e) => {
+                    e.stopPropagation();
+                    onDayClick(day);
+                  }}>
+                    +{dayEvents.length - 3} more events
                   </div>
                 )}
               </div>
