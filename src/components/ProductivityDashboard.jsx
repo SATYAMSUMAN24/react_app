@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 
 const ProductivityDashboard = ({ events }) => {
@@ -25,7 +24,7 @@ const ProductivityDashboard = ({ events }) => {
   const calculateGrowth = (thisWeek, lastWeek) => {
     const thisWeekCompleted = thisWeek.filter(e => e.status === 'completed').length;
     const lastWeekCompleted = lastWeek.filter(e => e.status === 'completed').length;
-    
+
     if (lastWeekCompleted === 0) return thisWeekCompleted > 0 ? 100 : 0;
     return Math.round(((thisWeekCompleted - lastWeekCompleted) / lastWeekCompleted) * 100);
   };
@@ -33,7 +32,7 @@ const ProductivityDashboard = ({ events }) => {
   const getMostProductiveDay = (events) => {
     const dayCount = {};
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    
+
     events.filter(e => e.status === 'completed').forEach(event => {
       const day = new Date(event.startDate).getDay();
       dayCount[day] = (dayCount[day] || 0) + 1;
@@ -79,7 +78,7 @@ const ProductivityDashboard = ({ events }) => {
   const getUpcomingDeadlines = (events) => {
     const now = new Date();
     const next7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    
+
     return events.filter(event => {
       const eventDate = new Date(event.endDate);
       return eventDate >= now && eventDate <= next7Days && event.status !== 'completed';
@@ -98,7 +97,7 @@ const ProductivityDashboard = ({ events }) => {
     const now = new Date();
     const thisWeek = getWeekEvents(events, now);
     const lastWeek = getWeekEvents(events, new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000));
-    
+
     return {
       weeklyCompletion: calculateCompletionRate(thisWeek),
       weeklyGrowth: calculateGrowth(thisWeek, lastWeek),
@@ -183,7 +182,7 @@ const ProductivityDashboard = ({ events }) => {
             </div>
           ))}
         </div>
-        
+
         {Object.keys(analytics.categoryBreakdown).length > itemsPerPage && (
           <div className="pagination-controls">
             <button 

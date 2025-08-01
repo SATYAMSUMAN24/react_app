@@ -25,13 +25,27 @@ const EventModal = ({ event, selectedDate, onSave, onDelete, onClose }) => {
   useEffect(() => {
     if (event) {
       setFormData({
-        ...event,
-        tags: event.tags || []
+        title: event.title || '',
+        description: event.description || '',
+        startDate: event.startDate || '',
+        endDate: event.endDate || '',
+        startTime: event.startTime || '',
+        endTime: event.endTime || '',
+        status: event.status || 'planned',
+        category: event.category || '',
+        priority: event.priority || 'medium',
+        assignedTo: event.assignedTo || '',
+        location: event.location || '',
+        isRecurring: event.isRecurring || false,
+        recurrenceType: event.recurrenceType || '',
+        tags: Array.isArray(event.tags) ? event.tags : [],
+        alarm: event.alarm || false,
+        alarmTime: event.alarmTime || 15
       });
     } else if (selectedDate) {
       const dateStr = selectedDate.toISOString().split('T')[0];
-      setFormData(prev => ({
-        ...prev,
+      setFormData(prevData => ({
+        ...prevData,
         startDate: dateStr,
         endDate: dateStr
       }));
