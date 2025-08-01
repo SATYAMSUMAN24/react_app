@@ -1258,52 +1258,6 @@ body {
   font-size: 0.9rem;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .advanced-scheduler {
-    padding: 0.5rem;
-  }
-
-  .scheduler-controls {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-
-  .scheduler-navigation {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .stats-container {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .calendar-filters {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .day-view-content,
-  .week-view-content {
-    height: 400px;
-  }
-
-  .time-column {
-    width: 60px;
-  }
-
-  .month-day {
-    min-height: 80px;
-    padding: 0.25rem;
-  }
-
-  .timeline-stats {
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-}
-
 /* Modern Features Toolbar */
 .modern-features-toolbar {
   background: white;
@@ -1899,19 +1853,148 @@ body {
   background: #f7fafc;
 }
 
-/* Responsive Design for New Features */
+/* Enhanced Responsive Design */
+@media (max-width: 1200px) {
+  .stats-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .scheduler-sidebar {
+    width: 320px;
+  }
+}
+
 @media (max-width: 1024px) {
   .scheduler-layout {
     flex-direction: column;
+    gap: 1rem;
   }
-  
+
   .scheduler-sidebar {
     width: 100%;
     max-height: none;
+    position: static;
+    margin-bottom: 1rem;
   }
-  
+
   .scheduler-main.with-sidebar {
     flex: none;
+  }
+
+  .stats-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .feature-buttons {
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .feature-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-main {
+    padding: 1rem;
+  }
+
+  .advanced-scheduler {
+    padding: 0.75rem;
+  }
+
+  .modern-features-toolbar {
+    padding: 1rem;
+  }
+
+  .feature-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .feature-btn {
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .stats-container {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .template-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-row {
+    flex-direction: column;
+  }
+
+  .search-main {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-content {
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .shortcut-hint {
+    display: none;
+  }
+
+  .data-management {
+    flex-direction: column;
+  }
+
+  .month-day {
+    min-height: 100px;
+    padding: 0.5rem;
+  }
+
+  .weekday-header {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-main {
+    padding: 0.75rem;
+  }
+
+  .stats-container {
+    gap: 0.5rem;
+  }
+
+  .stat-card {
+    padding: 1.2rem 1rem;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+  }
+
+  .month-day {
+    min-height: 80px;
+    padding: 0.25rem;
+  }
+
+  .feature-btn {
+    gap: 0.5rem;
+    font-size: 0.85rem;
   }
 }
 
@@ -1992,12 +2075,12 @@ body {
   .scheduler-layout {
     flex-direction: column;
   }
-  
+
   .scheduler-sidebar {
     width: 100%;
     max-height: none;
   }
-  
+
   .scheduler-main.with-sidebar {
     flex: none;
   }
@@ -2025,19 +2108,19 @@ body {
   .feature-buttons {
     justify-content: center;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .template-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .filter-row {
     flex-direction: column;
   }
-  
+
   .search-main {
     flex-direction: column;
     align-items: stretch;
