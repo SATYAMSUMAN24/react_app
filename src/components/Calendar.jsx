@@ -1,27 +1,42 @@
-
-import React, { useState, useEffect } from 'react';
-import EventModal from './EventModal';
+import React from 'react';
+import { useScheduler } from '../hooks/useScheduler';
+import SchedulerHeader from './SchedulerHeader';
 import SearchFilter from './SearchFilter';
+import EventModal from './EventModal';
+import DayView from './views/DayView';
+import WeekView from './views/WeekView';
+import MonthView from './views/MonthView';
+import AgendaView from './views/AgendaView';
+import TimelineView from './views/TimelineView';
 
-const Calendar = ({ events, onAddEvent, onUpdateEvent, onDeleteEvent }) => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState('month');
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [showEventModal, setShowEventModal] = useState(false);
-  const [selectedDay, setSelectedDay] = useState(null);
-  const [filteredEvents, setFilteredEvents] = useState(events);
-  const [filters, setFilters] = useState({
-    search: '',
-    category: 'all',
-    status: 'all',
-    assignedTo: 'all'
-  });
+const AdvancedScheduler = ({ events: initialEvents, onAddEvent, onUpdateEvent, onDeleteEvent }) => {
+  const {
+    events,
+    currentDate,
+    setCurrentDate,
+    viewMode,
+    setViewMode,
+    selectedEvent,
+    setSelectedEvent,
+    showEventModal,
+    setShowEventModal,
+    filters,
+    setFilters,
+    workingHours,
+    setWorkingHours,
+    timeFormat,
+    setTimeFormat,
+    timezone,
+    setTimezone,
+    addEvent,
+    updateEvent,
+    deleteEvent,
+    getEventsForDay,
+    navigateDate
+  } = useScheduler(initialEvents);
 
-  useEffect(() => {
-    applyFilters();
-  }, [events, filters]);
-
-  const applyFilters = () => {
+  // Apply filters to events
+  const filteredEvents = React.useMemo(() => {
     let filtered = events;
 
     if (filters.search) {
@@ -43,43 +58,134 @@ const Calendar = ({ events, onAddEvent, onUpdateEvent, onDeleteEvent }) => {
       filtered = filtered.filter(event => event.assignedTo === filters.assignedTo);
     }
 
-    setFilteredEvents(filtered);
-  };
+    return filtered;
+  }, [events, filters]);
 
-  const getMonthData = () => {
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - firstDay.getDay());
-    
-    const days = [];
-    const current = new Date(startDate);
-    
-    for (let i = 0; i < 42; i++) {
-      days.push(new Date(current));
-      current.setDate(current.getDate() + 1);
+  const handleNavigate = (direction) => {
+    if (direction === 'today') {
+      setCurrentDate(new Date());
+    } else {
+      navigateDate(direction);
     }
-    
-    return days;
   };
 
-  const getEventsForDay = (date) => {
-    const dateStr = date.toISOString().split('T')[0];
-    return filteredEvents.filter(event => {
-      const eventStart = new Date(event.startDate);
-      const eventEnd = new Date(event.endDate);
-      const currentDay = new Date(dateStr);
-      
-      return currentDay >= eventStart && currentDay <= eventEnd;
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
+    setShowEventModal(true);
+  };
+
+  const handleDayClick = (date) => {
+    setCurrentDate(date);
+    if (viewMode === 'month') {
+      setViewMode('day');
+    }
+  };
+
+  const handleTimeSlotClick = (date, time) => {
+    const eventDate = new Date(date);
+    setSelectedEvent({
+      startDate: eventDate.toISOString().split('T')[0],
+      endDate: eventDate.toISOString().split('T')[0],
+      startTime: time,
+      endTime: time
     });
+    setShowEventModal(true);
   };
 
+  const handleAddEvent = () => {
+    setSelectedEvent(null);
+    setShowEventModal(true);
+  };
+
+  const handleSaveEvent = (eventData) => {
+    if (selectedEvent && selectedEvent.id) {
+      updateEvent(selectedEvent.id, eventData);
+      onUpdateEvent(selectedEvent.id, eventData);
+    } else {
+      const newEvent = addEvent(eventData);
+      onAddEvent(eventData);
+    }
+    setShowEventModal(false);
+  };
+
+  const handleDeleteEvent = () => {
+    if (selectedEvent && selectedEvent.id) {
+      deleteEvent(selectedEvent.id);
+      onDeleteEvent(selectedEvent.id);
+      setShowEventModal(false);
+    }
+  };
+
+  const renderView = () => {
+    const commonProps = {
+      currentDate,
+      events: filteredEvents,
+      onEventClick: handleEventClick,
+      timeFormat,
+      workingHours
+    };
+
+    switch (viewMode) {
+      case 'day':
+        return (
+          <DayView
+            {...commonProps}
+            onTimeSlotClick={handleTimeSlotClick}
+          />
+        );
+      case 'week':
+        return (
+          <WeekView
+            {...commonProps}
+            onTimeSlotClick={handleTimeSlotClick}
+            viewMode="week"
+          />
+        );
+      case 'workWeek':
+        return (
+          <WeekView
+            {...commonProps}
+            onTimeSlotClick={handleTimeSlotClick}
+            viewMode="workWeek"
+          />
+        );
+      case 'month':
+        return (
+          <MonthView
+            {...commonProps}
+            onDayClick={handleDayClick}
+          />
+        );
+      case 'agenda':
+        return (
+          <AgendaView
+            {...commonProps}
+          />
+        );
+      case 'timelineDay':
+      case 'timelineWeek':
+      case 'timelineMonth':
+        return (
+          <TimelineView
+            {...commonProps}
+            viewMode={viewMode}
+          />
+        );
+      default:
+        return (
+          <WeekView
+            {...commonProps}
+            onTimeSlotClick={handleTimeSlotClick}
+            viewMode="week"
+          />
+        );
+    }
+  };
+
+  // Get statistics
   const getStatistics = () => {
     const today = new Date().toISOString().split('T')[0];
-    
+
     return {
       total: events.length,
       planned: events.filter(e => e.status === 'planned').length,
@@ -90,88 +196,24 @@ const Calendar = ({ events, onAddEvent, onUpdateEvent, onDeleteEvent }) => {
     };
   };
 
-  const handlePrevious = () => {
-    const newDate = new Date(currentDate);
-    if (viewMode === 'month') {
-      newDate.setMonth(newDate.getMonth() - 1);
-    } else if (viewMode === 'week') {
-      newDate.setDate(newDate.getDate() - 7);
-    } else {
-      newDate.setDate(newDate.getDate() - 1);
-    }
-    setCurrentDate(newDate);
-  };
-
-  const handleNext = () => {
-    const newDate = new Date(currentDate);
-    if (viewMode === 'month') {
-      newDate.setMonth(newDate.getMonth() + 1);
-    } else if (viewMode === 'week') {
-      newDate.setDate(newDate.getDate() + 7);
-    } else {
-      newDate.setDate(newDate.getDate() + 1);
-    }
-    setCurrentDate(newDate);
-  };
-
-  const handleDayClick = (date) => {
-    setSelectedDay(date);
-    setSelectedEvent(null);
-    setShowEventModal(true);
-  };
-
-  const handleEventClick = (event, e) => {
-    e.stopPropagation();
-    setSelectedEvent(event);
-    setSelectedDay(null);
-    setShowEventModal(true);
-  };
-
-  const handleAddEvent = () => {
-    setSelectedEvent(null);
-    setSelectedDay(new Date());
-    setShowEventModal(true);
-  };
-
-  const handleSaveEvent = (eventData) => {
-    if (selectedEvent) {
-      onUpdateEvent(selectedEvent.id, eventData);
-    } else {
-      onAddEvent(eventData);
-    }
-    setShowEventModal(false);
-  };
-
-  const handleDeleteEvent = () => {
-    if (selectedEvent) {
-      onDeleteEvent(selectedEvent.id);
-      setShowEventModal(false);
-    }
-  };
-
-  const formatDate = (date) => {
-    const options = { 
-      year: 'numeric', 
-      month: 'long',
-      ...(viewMode !== 'month' && { day: 'numeric' })
-    };
-    return date.toLocaleDateString('en-US', options);
-  };
-
-  const isToday = (date) => {
-    const today = new Date();
-    return date.toDateString() === today.toDateString();
-  };
-
-  const isCurrentMonth = (date) => {
-    return date.getMonth() === currentDate.getMonth();
-  };
-
-  const days = getMonthData();
   const stats = getStatistics();
 
   return (
-    <div className="calendar-container">
+    <div className="advanced-scheduler">
+      <SchedulerHeader
+        currentDate={currentDate}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        onNavigate={handleNavigate}
+        timeFormat={timeFormat}
+        setTimeFormat={setTimeFormat}
+        timezone={timezone}
+        setTimezone={setTimezone}
+        workingHours={workingHours}
+        setWorkingHours={setWorkingHours}
+        onAddEvent={handleAddEvent}
+      />
+
       {/* Statistics Cards */}
       <div className="stats-container">
         <div className="stat-card">
@@ -200,105 +242,25 @@ const Calendar = ({ events, onAddEvent, onUpdateEvent, onDeleteEvent }) => {
         </div>
       </div>
 
-      {/* Calendar Header */}
-      <div className="calendar-header">
-        <div className="calendar-controls">
-          <div className="calendar-navigation">
-            <button className="nav-btn" onClick={handlePrevious}>
-              ←
-            </button>
-            <div className="current-date">{formatDate(currentDate)}</div>
-            <button className="nav-btn" onClick={handleNext}>
-              →
-            </button>
-          </div>
-          
-          <div className="view-selector">
-            <button
-              className={`view-btn ${viewMode === 'month' ? 'active' : ''}`}
-              onClick={() => setViewMode('month')}
-            >
-              Month
-            </button>
-            <button
-              className={`view-btn ${viewMode === 'week' ? 'active' : ''}`}
-              onClick={() => setViewMode('week')}
-            >
-              Week
-            </button>
-            <button
-              className={`view-btn ${viewMode === 'day' ? 'active' : ''}`}
-              onClick={() => setViewMode('day')}
-            >
-              Day
-            </button>
-          </div>
-        </div>
+      <SearchFilter
+        filters={filters}
+        onFiltersChange={setFilters}
+        events={events}
+      />
 
-        <SearchFilter
-          filters={filters}
-          onFiltersChange={setFilters}
-          events={events}
-        />
-
-        <button className="add-event-btn" onClick={handleAddEvent}>
-          + Add Event
-        </button>
+      <div className="sync-status">
+        <span>🔄 Last sync: {new Date().toLocaleString()}</span>
       </div>
 
-      {/* Calendar Grid */}
-      <div className="calendar-grid">
-        <div className="weekdays">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="weekday">{day}</div>
-          ))}
-        </div>
-        
-        <div className="calendar-body">
-          {days.map((day, index) => {
-            const dayEvents = getEventsForDay(day);
-            const visibleEvents = dayEvents.slice(0, 3);
-            const hasMore = dayEvents.length > 3;
-            
-            return (
-              <div
-                key={index}
-                className={`calendar-day ${!isCurrentMonth(day) ? 'other-month' : ''} ${isToday(day) ? 'today' : ''}`}
-                onClick={() => handleDayClick(day)}
-              >
-                <div className={`day-number ${isToday(day) ? 'today' : ''}`}>
-                  {day.getDate()}
-                </div>
-                
-                <div className="day-events">
-                  {visibleEvents.map(event => (
-                    <div
-                      key={event.id}
-                      className={`event-item ${event.status}`}
-                      onClick={(e) => handleEventClick(event, e)}
-                      title={`${event.title} - ${event.startTime || ''} ${event.endTime ? `to ${event.endTime}` : ''}`}
-                    >
-                      {event.title}
-                    </div>
-                  ))}
-                  
-                  {hasMore && (
-                    <div className="more-events">
-                      +{dayEvents.length - 3} more
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+      <div className="scheduler-main">
+        {renderView()}
       </div>
 
       {/* Event Modal */}
       {showEventModal && (
         <EventModal
           event={selectedEvent}
-          selectedDate={selectedDay}
+          selectedDate={currentDate}
           onSave={handleSaveEvent}
           onDelete={handleDeleteEvent}
           onClose={() => setShowEventModal(false)}
@@ -308,4 +270,4 @@ const Calendar = ({ events, onAddEvent, onUpdateEvent, onDeleteEvent }) => {
   );
 };
 
-export default Calendar;
+export default AdvancedScheduler;
