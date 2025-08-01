@@ -2,22 +2,22 @@ import React, { useState, useEffect } from 'react';
 
 const EventModal = ({ event, selectedDate, onSave, onDelete, onClose }) => {
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    startDate: '',
-    endDate: '',
-    startTime: '',
-    endTime: '',
-    status: 'planned',
-    category: 'meeting',
-    priority: 'medium',
-    assignedTo: '',
-    location: '',
-    isRecurring: false,
-    recurrenceType: '',
-    tags: [],
-    alarm: false,
-    alarmTime: 15
+    title: event?.title || '',
+    description: event?.description || '',
+    startDate: event?.startDate || '',
+    endDate: event?.endDate || '',
+    startTime: event?.startTime || '',
+    endTime: event?.endTime || '',
+    status: event?.status || 'planned',
+    category: event?.category || '',
+    priority: event?.priority || 'medium',
+    assignedTo: event?.assignedTo || '',
+    location: event?.location || '',
+    isRecurring: event?.isRecurring || false,
+    recurrenceType: event?.recurrenceType || '',
+    tags: Array.isArray(event?.tags) ? event.tags : [],
+    alarm: event?.alarm || false,
+    alarmTime: event?.alarmTime || 15
   });
 
   const [tagInput, setTagInput] = useState('');

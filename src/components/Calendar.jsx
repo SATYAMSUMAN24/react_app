@@ -220,13 +220,13 @@ const AdvancedScheduler = ({ events: initialEvents, onAddEvent, onUpdateEvent, o
 
     const handleScroll = (e) => {
       if (isScrolling) return;
-      
+
       const scrollDirection = e.deltaY > 0 ? 'next' : 'prev';
-      
+
       if (Math.abs(e.deltaY) > 50) {
         isScrolling = true;
         handleNavigate(scrollDirection);
-        
+
         clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(() => {
           isScrolling = false;
@@ -350,7 +350,7 @@ const AdvancedScheduler = ({ events: initialEvents, onAddEvent, onUpdateEvent, o
             )}
           </div>
         )}
-        
+
         <div className={`scheduler-main ${sidebarView ? 'with-sidebar' : ''}`}>
           {renderView()}
         </div>

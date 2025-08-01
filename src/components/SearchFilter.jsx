@@ -54,6 +54,11 @@ const SearchFilter = ({ filters, onFiltersChange, events }) => {
     return status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ');
   };
 
+  const setFilters = (updater) => {
+    const newFilters = typeof updater === 'function' ? updater(filters) : updater;
+    onFiltersChange(newFilters);
+  };
+
   return (
     <div className="search-filter">
       <div className="filter-row">
