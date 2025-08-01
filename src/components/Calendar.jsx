@@ -213,6 +213,37 @@ const AdvancedScheduler = ({ events: initialEvents, onAddEvent, onUpdateEvent, o
 
   const stats = getStatistics();
 
+  // Add scroll-based navigation
+  useEffect(() => {
+    let isScrolling = false;
+    let scrollTimeout;
+
+    const handleScroll = (e) => {
+      if (isScrolling) return;
+      
+      const scrollDirection = e.deltaY > 0 ? 'next' : 'prev';
+      
+      if (Math.abs(e.deltaY) > 50) {
+        isScrolling = true;
+        handleNavigate(scrollDirection);
+        
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          isScrolling = false;
+        }, 500);
+      }
+    };
+
+    const schedulerElement = document.querySelector('.scheduler-main');
+    if (schedulerElement) {
+      schedulerElement.addEventListener('wheel', handleScroll, { passive: true });
+      return () => {
+        schedulerElement.removeEventListener('wheel', handleScroll);
+        clearTimeout(scrollTimeout);
+      };
+    }
+  }, []);
+
   return (
     <div className="advanced-scheduler">
       <SchedulerHeader

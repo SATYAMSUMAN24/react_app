@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 
 const EventModal = ({ event, selectedDate, onSave, onDelete, onClose }) => {
@@ -83,7 +82,7 @@ const EventModal = ({ event, selectedDate, onSave, onDelete, onClose }) => {
       alert('End date cannot be before start date');
       return;
     }
-    
+
     onSave(formData);
   };
 
@@ -117,7 +116,7 @@ const EventModal = ({ event, selectedDate, onSave, onDelete, onClose }) => {
             <input
               type="text"
               name="title"
-              value={formData.title}
+              value={formData.title || ''}
               onChange={handleInputChange}
               className="form-input"
               placeholder="Enter event title"
@@ -129,7 +128,7 @@ const EventModal = ({ event, selectedDate, onSave, onDelete, onClose }) => {
             <label className="form-label">Description</label>
             <textarea
               name="description"
-              value={formData.description}
+              value={formData.description || ''}
               onChange={handleInputChange}
               className="form-input form-textarea"
               placeholder="Enter event description"

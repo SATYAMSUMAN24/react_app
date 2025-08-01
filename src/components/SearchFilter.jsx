@@ -72,7 +72,7 @@ const SearchFilter = ({ filters, onFiltersChange, events }) => {
             <option value="all">All Categories</option>
             {categories.map(category => (
               <option key={category} value={category}>
-                {category.charAt(0).toUpperCase() + category.slice(1)}
+                {category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Unknown'}
               </option>
             ))}
           </select>

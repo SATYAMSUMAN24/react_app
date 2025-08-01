@@ -2,6 +2,8 @@
 import React, { useMemo } from 'react';
 
 const ProductivityDashboard = ({ events }) => {
+  const [currentPage, setCurrentPage] = React.useState(0);
+  const [itemsPerPage] = React.useState(5);
   const getWeekEvents = (events, date) => {
     const weekStart = new Date(date);
     weekStart.setDate(date.getDate() - date.getDay());
@@ -164,7 +166,9 @@ const ProductivityDashboard = ({ events }) => {
       <div className="category-breakdown">
         <h3>📊 Activity Breakdown</h3>
         <div className="category-chart">
-          {Object.entries(analytics.categoryBreakdown).map(([category, count]) => (
+          {Object.entries(analytics.categoryBreakdown)
+            .slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage)
+            .map(([category, count]) => (
             <div key={category} className="category-item">
               <span className="category-name">{category}</span>
               <div className="category-bar">
@@ -179,6 +183,30 @@ const ProductivityDashboard = ({ events }) => {
             </div>
           ))}
         </div>
+        
+        {Object.keys(analytics.categoryBreakdown).length > itemsPerPage && (
+          <div className="pagination-controls">
+            <button 
+              className="page-btn"
+              onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+              disabled={currentPage === 0}
+            >
+              ← Previous
+            </button>
+            <span className="page-info">
+              Page {currentPage + 1} of {Math.ceil(Object.keys(analytics.categoryBreakdown).length / itemsPerPage)}
+            </span>
+            <button 
+              className="page-btn"
+              onClick={() => setCurrentPage(prev => 
+                prev < Math.ceil(Object.keys(analytics.categoryBreakdown).length / itemsPerPage) - 1 ? prev + 1 : prev
+              )}
+              disabled={currentPage >= Math.ceil(Object.keys(analytics.categoryBreakdown).length / itemsPerPage) - 1}
+            >
+              Next →
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

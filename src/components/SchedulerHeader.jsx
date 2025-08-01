@@ -133,21 +133,32 @@ const SchedulerHeader = ({
         </div>
 
         <div className="working-days-control">
-          <label>Working Days</label>
-          <div className="working-days-inputs">
+          <label className="control-label">Working Days:</label>
+          <div className="working-days-buttons">
             {Object.entries(workingDays).map(([day, isWorking]) => (
-              <label key={day} className="day-checkbox">
-                <input
-                  type="checkbox"
-                  checked={isWorking}
-                  onChange={(e) => setWorkingDays({
-                    ...workingDays,
-                    [day]: e.target.checked
-                  })}
-                />
-                <span>{day.charAt(0).toUpperCase() + day.slice(1, 3)}</span>
-              </label>
+              <button
+                key={day}
+                className={`day-toggle-btn ${isWorking ? 'active' : ''}`}
+                onClick={() => setWorkingDays(prev => ({
+                  ...prev,
+                  [day]: !prev[day]
+                }))}
+              >
+                {day.charAt(0).toUpperCase() + day.slice(1, 3)}
+              </button>
             ))}
+          </div>
+          <div className="weekend-controls">
+            <button 
+              className="weekend-btn"
+              onClick={() => setWorkingDays(prev => ({
+                ...prev,
+                saturday: !prev.saturday,
+                sunday: !prev.sunday
+              }))}
+            >
+              {workingDays.saturday || workingDays.sunday ? '🚫 Hide Weekends' : '📅 Show Weekends'}
+            </button>
           </div>
         </div>
       </div>

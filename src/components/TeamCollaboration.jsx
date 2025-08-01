@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 
 const TeamCollaboration = ({ events, onUpdateEvent }) => {
@@ -12,10 +11,15 @@ const TeamCollaboration = ({ events, onUpdateEvent }) => {
     { id: 'sarah', name: 'Sarah Wilson', role: 'Analyst', avatar: '👩‍💼', status: 'away' }
   ];
 
+  const sharedCalendars = [
+    { id: 'calendar1', name: 'Marketing Calendar' },
+    { id: 'calendar2', name: 'Sales Calendar' }
+  ];
+
   const getTeamAvailability = () => {
     const now = new Date();
     const currentTime = now.getHours() * 60 + now.getMinutes();
-    
+
     return teamMembers.map(member => {
       const memberEvents = events.filter(e => 
         e.assignedTo.toLowerCase().includes(member.name.toLowerCase()) &&
@@ -60,13 +64,19 @@ const TeamCollaboration = ({ events, onUpdateEvent }) => {
   return (
     <div className="team-collaboration">
       <div className="team-header">
-        <h3>👥 Team Collaboration</h3>
-        <button 
-          className={`share-toggle ${shareMode ? 'active' : ''}`}
-          onClick={() => setShareMode(!shareMode)}
-        >
-          {shareMode ? '🔓' : '🔒'} Share Mode
-        </button>
+        <h2>👥 Team Collaboration</h2>
+        <span className="team-subtitle">Coordinate with your team</span>
+      </div>
+
+      <div className="team-stats">
+        <div className="team-stat">
+          <span className="stat-number">{teamMembers.length}</span>
+          <span className="stat-label">Team Members</span>
+        </div>
+        <div className="team-stat">
+          <span className="stat-number">{sharedCalendars.length}</span>
+          <span className="stat-label">Shared Calendars</span>
+        </div>
       </div>
 
       <div className="team-availability">
