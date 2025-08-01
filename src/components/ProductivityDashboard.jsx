@@ -2,22 +2,6 @@
 import React, { useMemo } from 'react';
 
 const ProductivityDashboard = ({ events }) => {
-  const analytics = useMemo(() => {
-    const now = new Date();
-    const thisWeek = getWeekEvents(events, now);
-    const lastWeek = getWeekEvents(events, new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000));
-    
-    return {
-      weeklyCompletion: calculateCompletionRate(thisWeek),
-      weeklyGrowth: calculateGrowth(thisWeek, lastWeek),
-      mostProductiveDay: getMostProductiveDay(events),
-      averageMeetingDuration: getAverageMeetingDuration(events),
-      focusTimeToday: getFocusTime(events, now),
-      upcomingDeadlines: getUpcomingDeadlines(events),
-      categoryBreakdown: getCategoryBreakdown(events)
-    };
-  }, [events]);
-
   const getWeekEvents = (events, date) => {
     const weekStart = new Date(date);
     weekStart.setDate(date.getDate() - date.getDay());
@@ -107,6 +91,22 @@ const ProductivityDashboard = ({ events }) => {
     });
     return breakdown;
   };
+
+  const analytics = useMemo(() => {
+    const now = new Date();
+    const thisWeek = getWeekEvents(events, now);
+    const lastWeek = getWeekEvents(events, new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000));
+    
+    return {
+      weeklyCompletion: calculateCompletionRate(thisWeek),
+      weeklyGrowth: calculateGrowth(thisWeek, lastWeek),
+      mostProductiveDay: getMostProductiveDay(events),
+      averageMeetingDuration: getAverageMeetingDuration(events),
+      focusTimeToday: getFocusTime(events, now),
+      upcomingDeadlines: getUpcomingDeadlines(events),
+      categoryBreakdown: getCategoryBreakdown(events)
+    };
+  }, [events]);
 
   return (
     <div className="productivity-dashboard">
