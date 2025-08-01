@@ -1,5 +1,4 @@
-
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 
 const AdvancedSearch = ({ events, onEventsFilter }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,44 +19,6 @@ const AdvancedSearch = ({ events, onEventsFilter }) => {
     return Array.from(tags);
   }, [events]);
 
-  const filteredEvents = useMemo(() => {
-    return events.filter(event => {
-      // Text search
-      if (searchQuery && !event.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-          !event.description.toLowerCase().includes(searchQuery.toLowerCase())) {
-        return false;
-      }
-
-      // Date range
-      if (dateRange.start && event.startDate < dateRange.start) return false;
-      if (dateRange.end && event.endDate > dateRange.end) return false;
-
-      // Time range
-      if (timeRange.start && event.startTime && event.startTime < timeRange.start) return false;
-      if (timeRange.end && event.endTime && event.endTime > timeRange.end) return false;
-
-      // Tags
-      if (selectedTags.length > 0 && (!event.tags || !selectedTags.some(tag => event.tags.includes(tag)))) {
-        return false;
-      }
-
-      // Priority
-      if (priorityFilter !== 'all' && event.priority !== priorityFilter) return false;
-
-      // Duration
-      if (durationFilter !== 'all') {
-        const duration = calculateEventDuration(event);
-        switch (durationFilter) {
-          case 'short': if (duration > 60) return false; break;
-          case 'medium': if (duration <= 60 || duration > 180) return false; break;
-          case 'long': if (duration <= 180) return false; break;
-        }
-      }
-
-      return true;
-    });
-  }, [events, searchQuery, dateRange, timeRange, selectedTags, priorityFilter, durationFilter]);
-
   const calculateEventDuration = (event) => {
     if (!event.startTime || !event.endTime) return 60; // Default 1 hour
     const start = new Date(`2000-01-01T${event.startTime}`);
@@ -65,8 +26,56 @@ const AdvancedSearch = ({ events, onEventsFilter }) => {
     return (end - start) / (1000 * 60); // Duration in minutes
   };
 
+  const filteredEvents = useMemo(() => {
+    return events.filter(event => {
+      if (
+        searchQuery &&
+        !event.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !event.description.toLowerCase().includes(searchQuery.toLowerCase())
+      ) {
+        return false;
+      }
+
+      if (dateRange.start && event.startDate < dateRange.start) return false;
+      if (dateRange.end && event.endDate > dateRange.end) return false;
+
+      if (timeRange.start && event.startTime && event.startTime < timeRange.start) return false;
+      if (timeRange.end && event.endTime && event.endTime > timeRange.end) return false;
+
+      if (
+        selectedTags.length > 0 &&
+        (!event.tags || !selectedTags.some(tag => event.tags.includes(tag)))
+      ) {
+        return false;
+      }
+
+      if (priorityFilter !== 'all' && event.priority !== priorityFilter) return false;
+
+      if (durationFilter !== 'all') {
+        const duration = calculateEventDuration(event);
+        switch (durationFilter) {
+          case 'short':
+            if (duration > 60) return false;
+            break;
+          case 'medium':
+            if (duration <= 60 || duration > 180) return false;
+            break;
+          case 'long':
+            if (duration <= 180) return false;
+            break;
+        }
+      }
+
+      return true;
+    });
+  }, [events, searchQuery, dateRange, timeRange, selectedTags, priorityFilter, durationFilter]);
+
+  useEffect(() => {
+    onEventsFilter(filteredEvents);
+  }, [filteredEvents, onEventsFilter]);
+
   const handleTagToggle = (tag) => {
-    setSelectedTags(prev => 
+    setSelectedTags(prev =>
       prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
     );
   };
@@ -79,10 +88,6 @@ const AdvancedSearch = ({ events, onEventsFilter }) => {
     setPriorityFilter('all');
     setDurationFilter('all');
   };
-
-  React.useEffect(() => {
-    onEventsFilter(filteredEvents);
-  }, [filteredEvents, onEventsFilter]);
 
   const savedSearches = [
     { name: 'This Week Meetings', query: 'meeting', dateRange: 'week' },
@@ -105,7 +110,7 @@ const AdvancedSearch = ({ events, onEventsFilter }) => {
               className="search-input"
             />
             {searchQuery && (
-              <button 
+              <button
                 className="clear-search"
                 onClick={() => setSearchQuery('')}
               >
@@ -113,7 +118,7 @@ const AdvancedSearch = ({ events, onEventsFilter }) => {
               </button>
             )}
           </div>
-          <button 
+          <button
             className={`advanced-toggle ${showAdvanced ? 'active' : ''}`}
             onClick={() => setShowAdvanced(!showAdvanced)}
           >
@@ -140,14 +145,18 @@ const AdvancedSearch = ({ events, onEventsFilter }) => {
                 <input
                   type="date"
                   value={dateRange.start}
-                  onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+                  onChange={(e) =>
+                    setDateRange(prev => ({ ...prev, start: e.target.value }))
+                  }
                   className="filter-input"
                 />
                 <span>to</span>
                 <input
                   type="date"
                   value={dateRange.end}
-                  onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+                  onChange={(e) =>
+                    setDateRange(prev => ({ ...prev, end: e.target.value }))
+                  }
                   className="filter-input"
                 />
               </div>
@@ -159,14 +168,18 @@ const AdvancedSearch = ({ events, onEventsFilter }) => {
                 <input
                   type="time"
                   value={timeRange.start}
-                  onChange={(e) => setTimeRange(prev => ({ ...prev, start: e.target.value }))}
+                  onChange={(e) =>
+                    setTimeRange(prev => ({ ...prev, start: e.target.value }))
+                  }
                   className="filter-input"
                 />
                 <span>to</span>
                 <input
                   type="time"
                   value={timeRange.end}
-                  onChange={(e) => setTimeRange(prev => ({ ...prev, end: e.target.value }))}
+                  onChange={(e) =>
+                    setTimeRange(prev => ({ ...prev, end: e.target.value }))
+                  }
                   className="filter-input"
                 />
               </div>
@@ -176,7 +189,7 @@ const AdvancedSearch = ({ events, onEventsFilter }) => {
           <div className="filter-row">
             <div className="filter-group">
               <label>Priority</label>
-              <select 
+              <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
                 className="filter-select"
@@ -190,15 +203,15 @@ const AdvancedSearch = ({ events, onEventsFilter }) => {
 
             <div className="filter-group">
               <label>Duration</label>
-              <select 
+              <select
                 value={durationFilter}
                 onChange={(e) => setDurationFilter(e.target.value)}
                 className="filter-select"
               >
                 <option value="all">All Durations</option>
-                <option value="short">Short (≤1h)</option>
+                <option value="short">Short (&le;1h)</option>
                 <option value="medium">Medium (1-3h)</option>
-                <option value="long">Long (>3h)</option>
+                <option value="long">Long (&gt;3h)</option>
               </select>
             </div>
           </div>
