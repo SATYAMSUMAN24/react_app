@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useScheduler } from '../hooks/useScheduler';
 import SchedulerHeader from './SchedulerHeader';
 import SearchFilter from './SearchFilter';
@@ -8,8 +8,18 @@ import WeekView from './views/WeekView';
 import MonthView from './views/MonthView';
 import AgendaView from './views/AgendaView';
 import TimelineView from './views/TimelineView';
+import NotificationManager from './NotificationManager';
+import QuickActions from './QuickActions';
+import ProductivityDashboard from './ProductivityDashboard';
+import TeamCollaboration from './TeamCollaboration';
+import AdvancedSearch from './AdvancedSearch';
 
 const AdvancedScheduler = ({ events: initialEvents, onAddEvent, onUpdateEvent, onDeleteEvent }) => {
+  const [showProductivityDashboard, setShowProductivityDashboard] = useState(false);
+  const [showTeamCollaboration, setShowTeamCollaboration] = useState(false);
+  const [filteredEventsList, setFilteredEventsList] = useState([]);
+  const [sidebarView, setSidebarView] = useState('quick'); // 'quick', 'productivity', 'team'
+
   const {
     events,
     currentDate,
@@ -39,9 +49,11 @@ const AdvancedScheduler = ({ events: initialEvents, onAddEvent, onUpdateEvent, o
 
   // Apply filters to events
   const filteredEvents = React.useMemo(() => {
-    let filtered = events;
+    // Use advanced search results if available, otherwise use basic filters
+    const baseEvents = filteredEventsList.length > 0 ? filteredEventsList : events;
+    let filtered = baseEvents;
 
-    if (filters.search) {
+    if (filters.search && filteredEventsList.length === 0) {
       filtered = filtered.filter(event =>
         event.title.toLowerCase().includes(filters.search.toLowerCase()) ||
         event.description.toLowerCase().includes(filters.search.toLowerCase())
@@ -61,7 +73,7 @@ const AdvancedScheduler = ({ events: initialEvents, onAddEvent, onUpdateEvent, o
     }
 
     return filtered;
-  }, [events, filters]);
+  }, [events, filters, filteredEventsList]);
 
   const handleNavigate = (direction) => {
     if (direction === 'today') {
@@ -219,6 +231,30 @@ const AdvancedScheduler = ({ events: initialEvents, onAddEvent, onUpdateEvent, o
         onAddEvent={handleAddEvent}
       />
 
+      {/* Modern Features Toolbar */}
+      <div className="modern-features-toolbar">
+        <div className="feature-buttons">
+          <button 
+            className={`feature-btn ${sidebarView === 'quick' ? 'active' : ''}`}
+            onClick={() => setSidebarView(sidebarView === 'quick' ? '' : 'quick')}
+          >
+            ⚡ Quick Actions
+          </button>
+          <button 
+            className={`feature-btn ${sidebarView === 'productivity' ? 'active' : ''}`}
+            onClick={() => setSidebarView(sidebarView === 'productivity' ? '' : 'productivity')}
+          >
+            📈 Analytics
+          </button>
+          <button 
+            className={`feature-btn ${sidebarView === 'team' ? 'active' : ''}`}
+            onClick={() => setSidebarView(sidebarView === 'team' ? '' : 'team')}
+          >
+            👥 Team
+          </button>
+        </div>
+      </div>
+
       {/* Statistics Cards */}
       <div className="stats-container">
         <div className="stat-card">
@@ -247,6 +283,11 @@ const AdvancedScheduler = ({ events: initialEvents, onAddEvent, onUpdateEvent, o
         </div>
       </div>
 
+      <AdvancedSearch
+        events={events}
+        onEventsFilter={setFilteredEventsList}
+      />
+
       <SearchFilter
         filters={filters}
         onFiltersChange={setFilters}
@@ -257,9 +298,35 @@ const AdvancedScheduler = ({ events: initialEvents, onAddEvent, onUpdateEvent, o
         <span>🔄 Last sync: {new Date().toLocaleString()}</span>
       </div>
 
-      <div className="scheduler-main">
-        {renderView()}
+      <div className="scheduler-layout">
+        {sidebarView && (
+          <div className="scheduler-sidebar">
+            {sidebarView === 'quick' && (
+              <QuickActions
+                onAddEvent={handleSaveEvent}
+                events={events}
+                currentDate={currentDate}
+              />
+            )}
+            {sidebarView === 'productivity' && (
+              <ProductivityDashboard events={events} />
+            )}
+            {sidebarView === 'team' && (
+              <TeamCollaboration 
+                events={events}
+                onUpdateEvent={handleUpdateEvent}
+              />
+            )}
+          </div>
+        )}
+        
+        <div className={`scheduler-main ${sidebarView ? 'with-sidebar' : ''}`}>
+          {renderView()}
+        </div>
       </div>
+
+      {/* Notification Manager */}
+      <NotificationManager events={events} />
 
       {/* Event Modal */}
       {showEventModal && (
@@ -273,6 +340,11 @@ const AdvancedScheduler = ({ events: initialEvents, onAddEvent, onUpdateEvent, o
       )}
     </div>
   );
+
+  function handleUpdateEvent(eventId, updatedEvent) {
+    updateEvent(eventId, updatedEvent);
+    onUpdateEvent(eventId, updatedEvent);
+  }
 };
 
 export default AdvancedScheduler;

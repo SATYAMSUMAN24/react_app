@@ -4,6 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import AdvancedScheduler from './components/Calendar';
 import AIAssistant from './components/AIAssistant';
+import OfflineManager from './components/OfflineManager';
 
 export default function App() {
   const [events, setEvents] = useState([
@@ -95,6 +96,65 @@ export default function App() {
   ]);
 
   const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [showOfflineManager, setShowOfflineManager] = useState(false);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+          case 'n':
+            e.preventDefault();
+            // Trigger new event modal
+            toast.info('⌨️ New event shortcut - Click on calendar to add event');
+            break;
+          case 'f':
+            e.preventDefault();
+            // Focus search
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput) searchInput.focus();
+            break;
+          case 's':
+            e.preventDefault();
+            // Save/Export
+            toast.info('💾 Tip: Use the offline manager to export your data');
+            break;
+          default:
+            break;
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Auto-save functionality
+  useEffect(() => {
+    const autoSave = () => {
+      localStorage.setItem('schedulerEvents', JSON.stringify(events));
+      localStorage.setItem('lastSaved', new Date().toISOString());
+    };
+
+    const interval = setInterval(autoSave, 30000); // Auto-save every 30 seconds
+    return () => clearInterval(interval);
+  }, [events]);
+
+  // Load saved events on startup
+  useEffect(() => {
+    const savedEvents = localStorage.getItem('schedulerEvents');
+    if (savedEvents) {
+      try {
+        const parsed = JSON.parse(savedEvents);
+        if (parsed.length > 0) {
+          setEvents(parsed);
+          toast.success('📚 Loaded your saved schedule');
+        }
+      } catch (error) {
+        console.error('Failed to load saved events:', error);
+      }
+    }
+  }, []);
 
   const addEvent = (newEvent) => {
     const eventWithId = {
@@ -117,14 +177,32 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>📅 Advanced React Scheduler</h1>
-        <div className="header-actions">
-          <button 
-            className="ai-assistant-btn"
-            onClick={() => setShowAIAssistant(!showAIAssistant)}
-          >
-            🤖 AI Assistant
-          </button>
+        <div className="header-content">
+          <div className="header-title">
+            <h1>📅 Advanced Office Scheduler</h1>
+            <p className="header-subtitle">
+              Professional scheduling for busy teams • Powered by modern features
+            </p>
+          </div>
+          <div className="header-actions">
+            <div className="keyboard-shortcuts">
+              <span className="shortcut-hint">💡 Ctrl+N: New • Ctrl+F: Search • Ctrl+S: Save</span>
+            </div>
+            <button 
+              className="header-btn"
+              onClick={() => setShowOfflineManager(!showOfflineManager)}
+              title="Offline & Data Management"
+            >
+              🌐 Offline
+            </button>
+            <button 
+              className="header-btn ai-assistant-btn"
+              onClick={() => setShowAIAssistant(!showAIAssistant)}
+              title="AI Assistant"
+            >
+              🤖 AI Assistant
+            </button>
+          </div>
         </div>
       </header>
 
@@ -143,8 +221,35 @@ export default function App() {
             onAddEvent={addEvent}
           />
         )}
+
+        {showOfflineManager && (
+          <div className="modal-overlay" onClick={() => setShowOfflineManager(false)}>
+            <div className="modal fade-in" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h2>🌐 Offline & Data Management</h2>
+                <button className="close-btn" onClick={() => setShowOfflineManager(false)}>×</button>
+              </div>
+              <OfflineManager 
+                events={events}
+                onSyncEvents={setEvents}
+              />
+            </div>
+          </div>
+        )}
       </main>
-      <ToastContainer />
+      
+      <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 }
